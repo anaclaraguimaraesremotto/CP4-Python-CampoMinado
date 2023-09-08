@@ -1,77 +1,88 @@
 import random
 
-def criar_matriz(rows, cols):
-    return [[0 for _ in range(cols)] for _ in range(rows)]
-
-
-def posicionar_bombas(matriz, bombas):
-    rows, cols = len(matriz), len(matriz[0])
+def criar_tabuleiro(rows, cols, bombas):
+    tabuleiro = [[' ' for _ in range(cols)] for _ in range(rows)]
     bombas_colocadas = 0
 
     while bombas_colocadas < bombas:
         row = random.randint(0, rows - 1)
-        col = random.randint(0, rows - 1)
+        col = random.randint(0, cols - 1)
 
-        if matriz[row][col] != -1:
-            matriz[row][col] = -1
+        if tabuleiro[row][col] != 'B':
+            tabuleiro[row][col] = 'B'
             bombas_colocadas += 1
 
-def colocar_numeros(matriz):
-    rows, cols = len(matriz), len(matriz[0])
+    return tabuleiro
+
+def preencher_dicas(tabuleiro):
+    rows, cols = len(tabuleiro), len(tabuleiro[0])
 
     for row in range(rows):
         for col in range(cols):
-            if matriz[row][col] != -1:
+            if tabuleiro[row][col] != 'B':
                 bombas_vizinhas = 0
 
                 for i in range(-1, 2):
                     for j in range(-1, 2):
-                        if 0 <= row + i < rows and 0 <= col + j and matriz[row + i][col + j] == -1:
+                        if 0 <= row + i < rows and 0 <= col + j < cols and tabuleiro[row + i][col + j] == 'B':
                             bombas_vizinhas += 1
-                
-                matriz[row][col] = bombas_vizinhas
 
-def imprimir_matriz(matriz):
-    for row in matriz:
-        print(' '.join(map(str, row)))
+                if bombas_vizinhas > 0:
+                    tabuleiro[row][col] = str(bombas_vizinhas)
 
-def jogo():
-    matriz = criar_matriz(10, 10)
-    posicionar_bombas(matriz, 10)
-    preencher_numeros(matriz)
+def imprimir_tabuleiro(tabuleiro):
+    rows = len(tabuleiro)
 
-    print("Bem-vindo ao jogo Campo Minado!\n")
-    imprimir_matriz(matriz)
+    print("Tabuleiro:")
+    for row in tabuleiro:
+        print(" ".join(row))
 
-    while True:
+def abrir_celula(tabuleiro, descobertos, row, col):
+    if row < 0 or row >= len(tabuleiro) or col < 0 or col >= len(tabuleiro[0]) or descobertos[row][col]:
+        return
+
+    descobertos[row][col] = True
+
+    if tabuleiro[row][col] == 'B':
+        return
+
+    if tabuleiro[row][col] == ' ':
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                abrir_celula(tabuleiro, descobertos, row + i, col + j)
+
+def jogar():
+    rows, cols, bombas = 10, 10, 10
+    tabuleiro = criar_tabuleiro(rows, cols, bombas)
+    descobertos = [[False for _ in range(cols)] for _ in range(rows)]
+    preencher_dicas(tabuleiro)
+    jogo_acabou = False
+
+    print("Bem-vindo ao Campo Minado!\n")
+    imprimir_tabuleiro(descobertos)
+
+    while not jogo_acabou:
         try:
-            linha = int(input("\nInforme a linha (0-9): "))
-            coluna = int(input("Informe a coluna (0-9): "))
+            row = int(input("\nInforme a linha (0-9): "))
+            col = int(input("Informe a coluna (0-9): "))
 
-            if matriz[linha][coluna] == -1:
-                print("Game Over! Você escolheu uma bomba!")
-                break
-            elif matriz[linha][coluna] == 0:
-                pass
+            if descobertos[row][col]:
+                print("Essa célula já foi descoberta. Tente novamente.")
+                continue
+
+            if tabuleiro[row][col] == 'B':
+                print("Você acertou uma bomba! Fim de jogo.")
+                jogo_acabou = True
             else:
-                print(f"Número de bombas na vizinhança: {matriz[linha][coluna]}")
+                abrir_celula(tabuleiro, descobertos, row, col)
+                imprimir_tabuleiro(descobertos)
+
+                if all(all(descobertos[i][j] or tabuleiro[i][j] == 'B' for j in range(cols)) for i in range(rows)):
+                    print("Parabéns! Você ganhou o jogo.")
+                    jogo_acabou = True
 
         except (ValueError, IndexError):
-            print("Entrada inválida. \nPor favor tente novamente.")
+            print("Entrada inválida. Tente novamente.")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    jogar()
