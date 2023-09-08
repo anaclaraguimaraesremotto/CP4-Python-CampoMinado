@@ -35,4 +35,43 @@ def imprimir_matriz(matriz):
     for row in matriz:
         print(' '.join(map(str, row)))
 
-        
+def jogo():
+    matriz = criar_matriz(10, 10)
+    posicionar_bombas(matriz, 10)
+    preencher_numeros(matriz)
+
+    print("Bem-vindo ao jogo Campo Minado!\n")
+    imprimir_matriz(matriz)
+
+    while True:
+        try:
+            linha = int(input("\nInforme a linha (0-9): "))
+            coluna = int(input("Informe a coluna (0-9): "))
+
+            if matriz[linha][coluna] == -1:
+                print("Game Over! Você escolheu uma bomba!")
+                break
+            elif matriz[linha][coluna] == 0:
+                pass
+            else:
+                print(f"Número de bombas na vizinhança: {matriz[linha][coluna]}")
+
+        except (ValueError, IndexError):
+            print("Entrada inválida. \nPor favor tente novamente.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
