@@ -30,3 +30,9 @@ def colocar_numeros(matriz):
                             bombas_vizinhas += 1
                 
                 matriz[row][col] = bombas_vizinhas
+
+def imprimir_matriz(matriz):
+    for row in matriz:
+        print(' '.join(map(str, row)))
+
+        
